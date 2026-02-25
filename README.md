@@ -4,7 +4,7 @@ emoji: 🚀
 colorFrom: indigo
 colorTo: purple
 sdk: streamlit
-sdk_version: 1.54.0
+sdk_version: 1.50.0
 python_version: 3.9.6
 app_file: app.py
 pinned: false
