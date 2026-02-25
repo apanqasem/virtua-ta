@@ -17,7 +17,7 @@ st.sidebar.write(f"Server System Time: {datetime.now().strftime('%Y-%m-%d %H:%M'
 
 # --- 1. CONFIGURATION & STYLING ---
 st.set_page_config(page_title="TXST Architecture AI Tutor", layout="wide")
-st.title("🦙 Boko Buddy: Computer Architecture SP26")
+st.title("🐱 Boko Buddy: Computer Architecture SP26")
 
 # Sidebar for controls
 with st.sidebar:
@@ -119,48 +119,89 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # User Input
+
+# --- MAIN CHAT INTERFACE ---
 if prompt := st.chat_input("AMA CS3339: Computer Architecture..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    # Display the User's question
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate Response
-    with st.chat_message("assistant"):
-        engine = get_query_engine(mode)
+    # 1. Create two columns for the comparison
+    col_rag, col_general = st.columns(2)
+
+    # 2. LEFT COLUMN: Your Custom RAG Tutor
+    with col_rag:
+        st.subheader("🎓 TXST AI Tutor (RAG)")
+        with st.chat_message("assistant", avatar="🐱"):
+            # Force a RAG mode for this column
+            rag_engine = get_query_engine("Supportive (Lecture + Textbook)")
+            with st.spinner("Consulting course materials..."):
+                rag_response = rag_engine.chat(prompt)
+                st.markdown(rag_response.response)
+                
+                # Show Citations if they exist
+                if hasattr(rag_response, 'source_nodes') and rag_response.source_nodes:
+                    with st.expander("📚 Sources Found"):
+                        for node in rag_response.source_nodes[:3]: # Top 3
+                            st.caption(f"From: {node.metadata.get('source_file')} (Page {node.metadata.get('page_label')})")
+
+    # 3. RIGHT COLUMN: Standard LLM
+    with col_general:
+        st.subheader("🤖 General AI (No Context)")
+        with st.chat_message("assistant", avatar="🌐"):
+            # Use the SimpleChatEngine we built earlier
+            gen_engine = get_query_engine("General AI (No RAG)")
+            with st.spinner("Thinking generally..."):
+                gen_response = gen_engine.chat(prompt)
+                st.markdown(gen_response.response)
+
+    # Save the RAG response to history (optional)
+    st.session_state.messages.append({"role": "assistant", "content": rag_response.response})
+    
+# if prompt := st.chat_input(""):
+#     st.session_state.messages.append({"role": "user", "content": prompt})
+#     with st.chat_message("user"):
+#         st.markdown(prompt)
+
+#     # Generate Response
+#     with st.chat_message("assistant"):
+#         engine = get_query_engine(mode)
         
-        # 1. Perform the chat query
-        # Note: We use .chat() here instead of stream_chat for easier source extraction
-        # but you can use streaming with advanced logic if preferred.
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        enhanced_prompt = f"(Context: Today is {today_str}). User asks: {prompt}"
+#         # 1. Perform the chat query
+#         # Note: We use .chat() here instead of stream_chat for easier source extraction
+#         # but you can use streaming with advanced logic if preferred.
+#         today_str = datetime.now().strftime("%Y-%m-%d")
+#         enhanced_prompt = f"(Context: Today is {today_str}). User asks: {prompt}"
 
-        response = engine.chat(enhanced_prompt)
-        st.markdown(response.response)
+#         response = engine.chat(enhanced_prompt)
+#         st.markdown(response.response)
 
-        # 2. Extract and display Citations
-        if response.source_nodes:
-            with st.expander("📚 View Sources & Citations"):
-                # Use a set to avoid showing the same file multiple times 
-                # if multiple chunks came from one source
-                seen_sources = set()
-                for node in response.source_nodes:
-                    # Access the metadata we added during ingestion
-                    meta = node.metadata
-                    source_name = meta.get('source_file') or meta.get('chapter') or "Unknown Source"
-                    page = meta.get('page_label') or "N/A"
-                    date = meta.get('date') or "N/A"
+#         # 2. Extract and display Citations
+#         if response.source_nodes:
+#             with st.expander("📚 View Sources & Citations"):
+#                 # Use a set to avoid showing the same file multiple times 
+#                 # if multiple chunks came from one source
+#                 seen_sources = set()
+#                 for node in response.source_nodes:
+#                     # Access the metadata we added during ingestion
+#                     meta = node.metadata
+#                     source_name = meta.get('source_file') or meta.get('chapter') or "Unknown Source"
+#                     page = meta.get('page_label') or "N/A"
+#                     date = meta.get('date') or "N/A"
                     
-                    source_key = f"{source_name} (Page {page})"
+#                     source_key = f"{source_name} (Page {page})"
                     
-                    if source_key not in seen_sources:
-                        st.write(f"**Source:** {source_name}")
-                        if date != "N/A":
-                            st.caption(f"Lecture Date: {date}")
-                        # Show a small snippet of the actual text retrieved
-                        st.info(f"... {node.get_content()[:200]} ...")
-                        seen_sources.add(source_key)
+#                     if source_key not in seen_sources:
+#                         st.write(f"**Source:** {source_name}")
+#                         if date != "N/A":
+#                             st.caption(f"Lecture Date: {date}")
+#                         # Show a small snippet of the actual text retrieved
+#                         st.info(f"... {node.get_content()[:200]} ...")
+#                         seen_sources.add(source_key)
 
-    st.session_state.messages.append({"role": "assistant", "content": response.response})
+#     st.session_state.messages.append({"role": "assistant", "content": response.response})
 
 
 # # User Input
