@@ -12,6 +12,9 @@ from datetime import datetime
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Add this to app.py
+st.sidebar.write(f"Server System Time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+
 # --- 1. CONFIGURATION & STYLING ---
 st.set_page_config(page_title="TXST Architecture AI Tutor", layout="wide")
 st.title("🦙 Boko Buddy: Computer Architecture SP26")
@@ -131,7 +134,7 @@ if prompt := st.chat_input("AMA CS3339: Computer Architecture..."):
         today_str = datetime.now().strftime("%Y-%m-%d")
         enhanced_prompt = f"(Context: Today is {today_str}). User asks: {prompt}"
 
-        response = engine.chat(prompt)
+        response = engine.chat(enhanced_prompt)
         st.markdown(response.response)
 
         # 2. Extract and display Citations
