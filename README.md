@@ -1,7 +1,7 @@
 
 ---
 title: TXST AI Tutor
-emoji: {{}}
+emoji: 🚀
 colorFrom: indigo
 colorTo: purple
 sdk: docker
