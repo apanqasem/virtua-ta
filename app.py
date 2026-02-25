@@ -157,7 +157,7 @@ if prompt := st.chat_input("AMA Computer Architecture..."):
             with st.spinner("Thinking generally..."):
                 today_str = datetime.now().strftime("%Y-%m-%d")
                 enhanced_prompt = f"(Context: Today is {today_str}). User asks: {prompt}"
-                gen_response = gen_engine.chat(enahnced_prompt)
+                gen_response = gen_engine.chat(enhanced_prompt)
                 st.markdown(gen_response.response)
 
     # Save the RAG response to history (optional)
