@@ -13,10 +13,9 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Add this to app.py
-st.sidebar.write(f"Server System Time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
 # --- 1. CONFIGURATION & STYLING ---
-st.set_page_config(page_title="TXST Architecture AI Tutor", layout="wide")
+st.set_page_config(page_title="TXST AI Tutor", layout="wide")
 st.title("🐱 Boko Buddy: Computer Architecture SP26")
 
 # Sidebar for controls
@@ -121,7 +120,7 @@ for message in st.session_state.messages:
 # User Input
 
 # --- MAIN CHAT INTERFACE ---
-if prompt := st.chat_input("AMA CS3339: Computer Architecture..."):
+if prompt := st.chat_input("AMA Computer Architecture..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     # Display the User's question
@@ -133,12 +132,14 @@ if prompt := st.chat_input("AMA CS3339: Computer Architecture..."):
 
     # 2. LEFT COLUMN: Your Custom RAG Tutor
     with col_rag:
-        st.subheader("🎓 TXST AI Tutor (RAG)")
+        st.subheader("🎓 TXST AI Tutor")
         with st.chat_message("assistant", avatar="🐱"):
             # Force a RAG mode for this column
             rag_engine = get_query_engine("Supportive (Lecture + Textbook)")
             with st.spinner("Consulting course materials..."):
-                rag_response = rag_engine.chat(prompt)
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                enhanced_prompt = f"(Context: Today is {today_str}). User asks: {prompt}"
+                rag_response = rag_engine.chat(enhanced_prompt)
                 st.markdown(rag_response.response)
                 
                 # Show Citations if they exist
@@ -149,12 +150,14 @@ if prompt := st.chat_input("AMA CS3339: Computer Architecture..."):
 
     # 3. RIGHT COLUMN: Standard LLM
     with col_general:
-        st.subheader("🤖 General AI (No Context)")
+        st.subheader("🤖 Standard GPT ")
         with st.chat_message("assistant", avatar="🌐"):
             # Use the SimpleChatEngine we built earlier
             gen_engine = get_query_engine("General AI (No RAG)")
             with st.spinner("Thinking generally..."):
-                gen_response = gen_engine.chat(prompt)
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                enhanced_prompt = f"(Context: Today is {today_str}). User asks: {prompt}"
+                gen_response = gen_engine.chat(enahnced_prompt)
                 st.markdown(gen_response.response)
 
     # Save the RAG response to history (optional)
@@ -204,24 +207,4 @@ if prompt := st.chat_input("AMA CS3339: Computer Architecture..."):
 #     st.session_state.messages.append({"role": "assistant", "content": response.response})
 
 
-# # User Input
-# if prompt := st.chat_input("Ask about the MIPS pipeline..."):
-#     st.session_state.messages.append({"role": "user", "content": prompt})
-#     with st.chat_message("user"):
-#         st.markdown(prompt)
 
-#     # Generate Response
-#     with st.chat_message("assistant"):
-#         engine = get_query_engine(mode)
-#         response_placeholder = st.empty()
-#         full_response = ""
-        
-#         # Streaming for that "ChatGPT" feel
-#         streaming_response = engine.stream_chat(prompt)
-#         for token in streaming_response.response_gen:
-#             full_response += token
-#             response_placeholder.markdown(full_response + "▌")
-        
-#         response_placeholder.markdown(full_response)
-        
-#     st.session_state.messages.append({"role": "assistant", "content": full_response})
