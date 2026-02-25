@@ -8,7 +8,9 @@ from llama_index.llms.openai import OpenAI # Or your preferred LLM
 from datetime import datetime
 
 
-
+# --- INITIALIZE SESSION STATE ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # --- 1. CONFIGURATION & STYLING ---
 st.set_page_config(page_title="TXST Architecture AI Tutor", layout="wide")
